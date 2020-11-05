@@ -11,7 +11,7 @@ typedef struct cel{
   int indice;
   int analisado;
   int objeto;
-  int prox;
+  int pai;
 }CELULA;
 
 CELULA matriz[5][5];
@@ -25,7 +25,9 @@ int ultimo=-1;
 int x_atual;
 int y_atual;
 int primeira_passada=1;
-
+char movimento_robo[15]; //'b'=baixo, 'c'=cima, 'd'=direita, 'e'=esquerda
+int contador_movimento=0;
+int flag=0;
 
 //calculando os custos_ função dentro de função vai acima
 void h(int linha, int coluna){
@@ -45,6 +47,8 @@ void h(int linha, int coluna){
 void g(int linha, int coluna){
   int g_x, g_y;
 
+  matriz[linha][coluna].g = (matriz[x_atual][y_atual].g + 1); 
+  /*
   g_x = (linha - x_inicio);
   if(g_x<0){
     g_x=g_x*(-1);
@@ -54,10 +58,108 @@ void g(int linha, int coluna){
     g_y=g_y*(-1);
   }
   matriz[linha][coluna].g = g_x + g_y;
+  */
 }
 
 void f(int linha, int coluna){
 matriz[linha][coluna].f = matriz[linha][coluna].h + matriz[linha][coluna].g;
+}
+
+void melhor_caminho(int x, int y){
+  int i, j;
+
+  for(i=0;i<5;i++){
+    for(j=0;j<5;j++){
+      if(matriz[x][y].pai==matriz[i][j].indice){ //se o nome da celula for igual ao pai da celula atual
+        if((x-1)==i && y==j){
+          //back
+          movimento_robo[contador_movimento++]='b'; //***celula de cima, porém o robô irá fazer o caminho contrário(do início ao fim) por isso celula de baixo
+          x=i;
+          y=j;
+          Serial.println("Cima");
+          if(x==x_inicio && y==y_inicio){
+            Serial.println("Mover");
+            
+            mover();
+            Serial.println("Fim 1");
+            delay(25000);
+          }
+          melhor_caminho(x, y);
+        }
+        else{
+          if((x+1)==i && y==j){
+            //back
+            movimento_robo[contador_movimento++]='c';
+            x=i;
+            y=j;
+            Serial.println("Baixo");
+            if(x==x_inicio && y==y_inicio){
+              Serial.println("Mover");
+              
+              mover();
+              Serial.println("Fim 2");
+              delay(25000);
+            }
+            melhor_caminho(x, y);
+          }
+          else{
+            if(x==i && (y-1)==j){
+              //back
+              movimento_robo[contador_movimento++]='d'; //celula da esquerda, porém armazena direita
+              x=i;
+              y=j;
+              Serial.println("Esquerda");
+              if(x==x_inicio && y==y_inicio){
+                Serial.println("Mover");             
+                mover();
+                Serial.println("Fim 3");
+                delay(25000);
+
+              }
+              melhor_caminho(x, y);
+            }
+            else{
+              //back
+              movimento_robo[contador_movimento++]='e';
+              x=i;
+              y=j;
+              Serial.println("Direita");
+              if(x==x_inicio && y==y_inicio){
+                Serial.println("Mover");
+                mover();
+                Serial.println("Fim 4");
+                delay(25000);
+              }
+              melhor_caminho(x, y);    
+            }
+          }
+        }       
+      }
+    }
+  }
+}
+
+
+void mover(){
+  int m;
+   for(m=(contador_movimento-1);m>=0;m--){
+    if(movimento_robo[m] == 'b'){
+      Serial.println("robô se move pra baixo");
+    }
+    else{
+      if(movimento_robo[m] == 'c'){
+        Serial.println("robô se move pra cima");
+      }
+      else{
+        if(movimento_robo[m] == 'd'){
+          Serial.println("robô se move pra direita");
+        }
+        else{
+          Serial.println("robô se move pra esquerda");
+        }          
+      }
+    }
+  }  
 }
 
 //defini a cecula inicial=matriz[2][0] e final=matriz[2][4]
@@ -74,6 +176,7 @@ void iniciar_matriz(){
         matriz[i][j].indice=cont++;
         matriz[i][j].analisado=0;
         matriz[i][j].objeto=0;
+        matriz[i][j].pai=0;
       }
       else{
         if(i==x_fim && j==y_fim){
@@ -84,6 +187,7 @@ void iniciar_matriz(){
           matriz[i][j].indice=cont++;
           matriz[i][j].analisado=0;
           matriz[i][j].objeto=0;
+          matriz[i][j].pai=0;
         }
         else{
           if(i==1 && j==2){
@@ -93,7 +197,8 @@ void iniciar_matriz(){
             matriz[i][j].celula=2;
             matriz[i][j].indice=cont++;
             matriz[i][j].analisado=0;
-            matriz[i][j].objeto=1;            
+            matriz[i][j].objeto=1;
+            matriz[i][j].pai=0;            
           }
           else{
             if(i==2 && j==2){
@@ -103,7 +208,8 @@ void iniciar_matriz(){
               matriz[i][j].celula=2;
               matriz[i][j].indice=cont++;
               matriz[i][j].analisado=0;
-              matriz[i][j].objeto=1; 
+              matriz[i][j].objeto=1;
+              matriz[i][j].pai=0; 
             }
             else{
               if(i==3 && j==2){
@@ -114,6 +220,7 @@ void iniciar_matriz(){
                 matriz[i][j].indice=cont++;
                 matriz[i][j].analisado=0;
                 matriz[i][j].objeto=1;
+                matriz[i][j].pai=0;
               }
               else{
                 matriz[i][j].g=0;
@@ -123,6 +230,7 @@ void iniciar_matriz(){
                 matriz[i][j].indice=cont++;
                 matriz[i][j].analisado=0;
                 matriz[i][j].objeto=0;
+                matriz[i][j].pai=0;
               }
             }
           }
@@ -142,6 +250,7 @@ void iniciar_lista_aberta(){
     lista_aberta[i].indice=0;
     lista_aberta[i].analisado=0;
     lista_aberta[i].objeto=0;
+    lista_aberta[i].pai=0;
   }
 }
 
@@ -155,6 +264,7 @@ void iniciar_lista_fechada(){
     lista_fechada[i].indice=0;
     lista_fechada[i].analisado=0;
     lista_fechada[i].objeto=0;
+    lista_fechada[i].pai=0;
   }
 }  
 
@@ -163,50 +273,79 @@ void detectar_vizinhos(int x_atual, int y_atual){
   //nao pode considerar objeto e quem esta na lista aberta e fechada
   for(i=0;i<5;i++){
     for(j=0;j<5;j++){
-      if(i==(x_atual-1) && j==y_atual && matriz[i][j].analisado==0 && matriz[i][j].objeto==0){
-        //verifica_custo();
-        //antes de verificar o custo e adicionar na lista aberta, deve-se verificar se a celula analisada não está na lista aberta e nem na fechada.
-        //H
-        h(i, j); //linha corrente e coluna corrente
-
-        //G
-        g(i, j);
-
-        //F
-        f(i, j);
-       
-        lista_aberta[it_aberta]=matriz[i][j];
-        it_aberta++;
-        ultimo++;
-        matriz[i][j].analisado=1;  
+      if(i==(x_atual-1) && j==y_atual && matriz[i][j].analisado==0 && matriz[i][j].objeto==0){ //se for um vizinho
+        if(i==x_fim && j==y_fim){ //se esse vizinho for a celula objetivo
+          matriz[i][j].pai = matriz[x_atual][y_atual].indice;
+          melhor_caminho(i, j);
+        }else{
+          //verifica_custo();
+          //antes de verificar o custo e adicionar na lista aberta, deve-se verificar se a celula analisada não está na lista aberta e nem na fechada.
+          //H
+          h(i, j); //linha corrente e coluna corrente
+          //G
+          g(i, j); 
+          //F
+          f(i, j);
+          matriz[i][j].pai = matriz[x_atual][y_atual].indice;
+          lista_aberta[it_aberta]=matriz[i][j];
+          it_aberta++;
+          ultimo++;
+          matriz[i][j].analisado=1;        
+        }
       }
       if(i==x_atual && j==(y_atual+1) && matriz[i][j].analisado==0 && matriz[i][j].objeto==0){
-        //calcular f, g, h
-        h(i, j);
-        g(i, j);
-        f(i, j);
-        lista_aberta[it_aberta]=matriz[i][j];
-        it_aberta++;
-        ultimo++;
-        matriz[i][j].analisado=1;
+        if(i==x_fim && j==y_fim){ //se esse vizinho for a celula objetivo
+          matriz[i][j].pai = matriz[x_atual][y_atual].indice;
+          melhor_caminho(i, j);
+
+        }
+        else{
+          //calcular f, g, h
+          h(i, j);
+          g(i, j);
+          f(i, j);
+          matriz[i][j].pai = matriz[x_atual][y_atual].indice;
+          lista_aberta[it_aberta]=matriz[i][j];
+          it_aberta++;
+          ultimo++;
+          matriz[i][j].analisado=1;
+        }
       }
       if(i==(x_atual+1) && j==y_atual && matriz[i][j].analisado==0 && matriz[i][j].objeto==0){
-        h(i, j);
-        g(i, j);
-        f(i, j);
-        lista_aberta[it_aberta]=matriz[i][j];
-        it_aberta++; 
-        ultimo++; 
-        matriz[i][j].analisado=1;      
+        if(i==x_fim && j==y_fim){ //se esse vizinho for a celula objetivo
+          matriz[i][j].pai = matriz[x_atual][y_atual].indice;
+          melhor_caminho(i, j);
+          //mover();
+
+        }
+        else{
+          h(i, j);
+          g(i, j);
+          f(i, j);
+          matriz[i][j].pai = matriz[x_atual][y_atual].indice;
+          lista_aberta[it_aberta]=matriz[i][j];
+          it_aberta++; 
+          ultimo++; 
+          matriz[i][j].analisado=1;   
+        }  
       }
       if(i==x_atual && j==(y_atual-1) && matriz[i][j].analisado==0 && matriz[i][j].objeto==0){
-        h(i, j);
-        g(i, j);
-        f(i, j);
-        lista_aberta[it_aberta]=matriz[i][j];
-        it_aberta++;
-        ultimo++;
-        matriz[i][j].analisado=1;        
+        if(i==x_fim && j==y_fim){ //se esse vizinho for a celula objetivo
+          matriz[i][j].pai = matriz[x_atual][y_atual].indice;
+          melhor_caminho(i, j);
+
+        }
+        else{
+          h(i, j);
+          g(i, j);
+          f(i, j);
+          matriz[i][j].pai = matriz[x_atual][y_atual].indice;
+          lista_aberta[it_aberta]=matriz[i][j];
+          it_aberta++;
+          ultimo++;
+          matriz[i][j].analisado=1;   
+        }
+      
       }
     }
   }
@@ -224,6 +363,7 @@ void insertion_sort(int primeiro, int ultimo){
     key.indice = lista_aberta[i].indice;
     key.analisado = lista_aberta[i].analisado;
     key.objeto = lista_aberta[i].objeto;
+    key.pai = lista_aberta[i].pai;
     j = i - 1;
     while (j >= primeiro && lista_aberta[j].f > key.f) {
         lista_aberta[j + 1].g = lista_aberta[j].g;
@@ -233,6 +373,7 @@ void insertion_sort(int primeiro, int ultimo){
         lista_aberta[j + 1].indice = lista_aberta[j].indice;
         lista_aberta[j + 1].analisado = lista_aberta[j].analisado;
         lista_aberta[j + 1].objeto = lista_aberta[j].objeto;
+        lista_aberta[j + 1].pai = lista_aberta[j].pai;
         j = j - 1;
     }
     lista_aberta[j + 1].g = key.g;
@@ -242,6 +383,7 @@ void insertion_sort(int primeiro, int ultimo){
     lista_aberta[j + 1].indice = key.indice;
     lista_aberta[j + 1].analisado = key.analisado;
     lista_aberta[j + 1].objeto = key.objeto;
+    lista_aberta[j + 1].pai = key.pai;
   }
 }
 
@@ -310,6 +452,27 @@ void imprimir_matriz_celula(){
   }
 }
 
+void imprimir_matriz_objeto(){
+  int i, j;
+  for(i=0;i<5;i++){
+    for(j=0;j<5;j++){
+      Serial.print(matriz[i][j].objeto);
+      Serial.print(' ');
+    }
+    Serial.println(" ");
+  }  
+}
+
+void imprimir_matriz_analisado(){
+  int i, j;
+  for(i=0;i<5;i++){
+    for(j=0;j<5;j++){
+      Serial.print(matriz[i][j].analisado);
+      Serial.print(' ');
+    }
+    Serial.println(" ");
+  }  
+}
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
@@ -321,17 +484,21 @@ void loop() {
   
   if (primeira_passada==1){
     iniciar_matriz(); //sair do loop
-    Serial.println("MATRIZ INDICE(NOME DA CELULA)");
+    //Serial.println("MATRIZ INDICE(NOME DA CELULA)");
     imprimir_matriz_indice();
-    Serial.println("MATRIZ CELULA(POSIÇÃO INICIAL, CAMINHO, FINAL)");
-    imprimir_matriz_celula();
-    Serial.println("MATRIZ CUSTO F");    
-    imprimir_matriz_f();
+    //Serial.println("MATRIZ CELULA(POSIÇÃO INICIAL, CAMINHO, FINAL)");
+    //imprimir_matriz_celula();
+    //Serial.println("MATRIZ CUSTO F");    
+    //imprimir_matriz_f();
+    //Serial.println("MATRIZ COM OBJETOS");
+    imprimir_matriz_objeto();
+    //Serial.println("MATRIZ COM ANALISADOS");
+    imprimir_matriz_analisado();
 
     iniciar_lista_aberta();
-    Serial.println("IMPRIME LISTA ABERTA INICIALIZADA");
+    //Serial.println("IMPRIME LISTA ABERTA INICIALIZADA");
     imprime_lista_aberta(primeiro);
-    Serial.println("IMPRIME LISTA FECHADA");
+    //Serial.println("IMPRIME LISTA FECHADA");
     iniciar_lista_fechada();
     imprime_lista_fechada();
 
@@ -347,7 +514,8 @@ void loop() {
     lista_aberta[it_aberta].indice = matriz[x_atual][y_atual].indice;
     lista_aberta[it_aberta].analisado = matriz[x_atual][y_atual].analisado;
     lista_aberta[it_aberta].objeto = matriz[x_atual][y_atual].objeto;
-    Serial.println("IMPRIME LISTA ABERTA, COM VALOR A SER ANALISADO");
+    lista_aberta[it_aberta].pai = matriz[x_atual][y_atual].pai;
+    //Serial.println("IMPRIME LISTA ABERTA, COM VALOR A SER ANALISADO");
     imprime_lista_aberta(primeiro);
     
 
@@ -355,6 +523,8 @@ void loop() {
     it_aberta++;
     ultimo++;
     matriz[x_atual][y_atual].analisado=1;
+    //Serial.println("MATRIZ COM ANALISADOS");
+    imprimir_matriz_analisado();
   }
 
   primeira_passada = 0;
@@ -363,6 +533,8 @@ void loop() {
   detectar_vizinhos(x_atual, y_atual);
   Serial.println("IMPRIME MATRIZ COM VIZINHOS DETECTADOS");
   imprimir_matriz_f();
+  Serial.println("MATRIZ COM ANALISADOS");
+  imprimir_matriz_analisado();
   //Serial.println(lista_aberta[0].celula);
   //Serial.println(lista_aberta[1].celula);
   //Serial.println(lista_aberta[2].celula);
@@ -381,6 +553,7 @@ void loop() {
   lista_aberta[primeiro].celula=1;
   lista_aberta[primeiro].analisado=0;
   lista_aberta[primeiro].objeto=0;
+  lista_aberta[primeiro].pai=0;
    
   primeiro++; //novo primeiro
   
@@ -398,6 +571,6 @@ void loop() {
   Serial.println(y_atual);
   //x_atual
   //y_atual
-  
-  delay(50000);
+
+  delay(3000);
 }
