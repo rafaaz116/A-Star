@@ -1,37 +1,37 @@
-int x_inicio = 2;
-int y_inicio = 0;
-int x_fim = 2;
-int y_fim = 4; 
+byte x_inicio = 2;
+byte y_inicio = 0;
+byte x_fim = 2;
+byte y_fim = 4; 
 
 typedef struct cel{
-  int g;
-  int h;
-  int f;
-  int celula; //0 representa o inicio, 1 o caminho e 2 o fim
-  int indice;
-  int analisado;
-  int objeto;
-  int pai;
+  byte g;
+  byte h;
+  byte f;
+  byte celula; //0 representa o inicio, 1 o caminho e 2 o fim
+  byte indice;
+  byte analisado;
+  byte objeto;
+  byte pai;
 }CELULA;
 
 CELULA matriz[5][5];
 
 CELULA lista_aberta[25];
-int it_aberta=0;
+byte it_aberta=0;
 CELULA lista_fechada[25];
-int it_fechada=0;
-int primeiro=0;
-int ultimo=-1;
-int x_atual;
-int y_atual;
-int primeira_passada=1;
+byte it_fechada=0;
+byte primeiro=0;
+short ultimo=-1;
+byte x_atual;
+byte y_atual;
+byte primeira_passada=1;
 char movimento_robo[15]; //'b'=baixo, 'c'=cima, 'd'=direita, 'e'=esquerda
-int contador_movimento=0;
-int flag=0;
+byte contador_movimento=0;
+byte flag=0;
 
 //calculando os custos_ função dentro de função vai acima
-void h(int linha, int coluna){
-  int h_x, h_y;
+void h(byte linha, byte coluna){
+  short h_x, h_y;
   
   h_x=(x_fim - linha);
   if(h_x<0){
@@ -44,29 +44,18 @@ void h(int linha, int coluna){
   matriz[linha][coluna].h = h_x + h_y;
 }
 
-void g(int linha, int coluna){
-  int g_x, g_y;
-
+void g(byte linha, byte coluna){
+  byte g_x, g_y;
+  
   matriz[linha][coluna].g = (matriz[x_atual][y_atual].g + 1); 
-  /*
-  g_x = (linha - x_inicio);
-  if(g_x<0){
-    g_x=g_x*(-1);
-  }
-  g_y = (coluna - y_inicio);
-  if(g_y<0){
-    g_y=g_y*(-1);
-  }
-  matriz[linha][coluna].g = g_x + g_y;
-  */
 }
 
-void f(int linha, int coluna){
-matriz[linha][coluna].f = matriz[linha][coluna].h + matriz[linha][coluna].g;
+void f(byte linha, byte coluna){
+  matriz[linha][coluna].f = matriz[linha][coluna].h + matriz[linha][coluna].g;
 }
 
-void melhor_caminho(int x, int y){
-  int i, j;
+void melhor_caminho(byte x, byte y){
+  byte i, j;
 
   for(i=0;i<5;i++){
     for(j=0;j<5;j++){
@@ -141,7 +130,7 @@ void melhor_caminho(int x, int y){
 
 
 void mover(){
-  int m;
+  short m;
    for(m=(contador_movimento-1);m>=0;m--){
     if(movimento_robo[m] == 'b'){
       Serial.println("robô se move pra baixo");
@@ -164,7 +153,7 @@ void mover(){
 
 //defini a cecula inicial=matriz[2][0] e final=matriz[2][4]
 void iniciar_matriz(){
-  int i, j, cont;
+  byte i, j, cont;
   cont=1;
   for(i=0;i<5;i++){
     for(j=0;j<5;j++){
@@ -241,7 +230,7 @@ void iniciar_matriz(){
 }
 
 void iniciar_lista_aberta(){
-  int i;
+  byte i;
   for(i=0;i<25;i++){
     lista_aberta[i].g=0;
     lista_aberta[i].h=0;
@@ -255,7 +244,7 @@ void iniciar_lista_aberta(){
 }
 
 void iniciar_lista_fechada(){
-  int i;
+  byte i;
   for(i=0;i<25;i++){
     lista_fechada[i].g=0;
     lista_fechada[i].h=0;
@@ -268,8 +257,8 @@ void iniciar_lista_fechada(){
   }
 }  
 
-void detectar_vizinhos(int x_atual, int y_atual){
-  int i, j, n;
+void detectar_vizinhos(byte x_atual, byte y_atual){
+  byte i, j, n;
   //nao pode considerar objeto e quem esta na lista aberta e fechada
   for(i=0;i<5;i++){
     for(j=0;j<5;j++){
@@ -352,8 +341,8 @@ void detectar_vizinhos(int x_atual, int y_atual){
   //reordenar a lista aberta
 }
 
-void insertion_sort(int primeiro, int ultimo){
-  int i, j;
+void insertion_sort(byte primeiro, short ultimo){
+  byte i, j;
   CELULA key;
   for (i = (primeiro+1); i <= ultimo; i++) {
     key.g = lista_aberta[i].g;
@@ -388,7 +377,7 @@ void insertion_sort(int primeiro, int ultimo){
 }
 
 void busca_celula_analisar(){
-  int i, j, contador;
+  byte i, j, contador;
   contador=0;
   for(i=0;i<5;i++){
     for(j=0;j<5;j++){
@@ -401,8 +390,8 @@ void busca_celula_analisar(){
   }
 }
 
-void imprime_lista_aberta(int primerio){
-  int i;
+void imprime_lista_aberta(byte primerio){
+  byte i;
   for(i=primeiro;i<25;i++){
     Serial.print(lista_aberta[i].indice);
     Serial.print(" ");
@@ -411,7 +400,7 @@ void imprime_lista_aberta(int primerio){
 }
 
 void imprime_lista_fechada(){
-  int i;
+  byte i;
   for(i=0;i<25;i++){
     Serial.print(lista_fechada[i].indice);
     Serial.print(" ");
@@ -420,7 +409,7 @@ void imprime_lista_fechada(){
 }
 
 void imprimir_matriz_indice(){
-  int i, j;
+  byte i, j;
   for(i=0;i<5;i++){
     for(j=0;j<5;j++){
       Serial.print(matriz[i][j].indice);
@@ -431,7 +420,7 @@ void imprimir_matriz_indice(){
 }
 
 void imprimir_matriz_f(){
-  int i, j;
+  byte i, j;
   for(i=0;i<5;i++){
     for(j=0;j<5;j++){
       Serial.print(matriz[i][j].f);
@@ -442,7 +431,7 @@ void imprimir_matriz_f(){
 }
 
 void imprimir_matriz_celula(){
-  int i, j;
+  byte i, j;
   for(i=0;i<5;i++){
     for(j=0;j<5;j++){
       Serial.print(matriz[i][j].celula);
@@ -453,7 +442,7 @@ void imprimir_matriz_celula(){
 }
 
 void imprimir_matriz_objeto(){
-  int i, j;
+  byte i, j;
   for(i=0;i<5;i++){
     for(j=0;j<5;j++){
       Serial.print(matriz[i][j].objeto);
@@ -464,7 +453,7 @@ void imprimir_matriz_objeto(){
 }
 
 void imprimir_matriz_analisado(){
-  int i, j;
+  byte i, j;
   for(i=0;i<5;i++){
     for(j=0;j<5;j++){
       Serial.print(matriz[i][j].analisado);
@@ -572,5 +561,5 @@ void loop() {
   //x_atual
   //y_atual
 
-  delay(3000);
+  delay(5000);
 }
