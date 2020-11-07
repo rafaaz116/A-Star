@@ -1,3 +1,4 @@
+unsigned long tempo;
 byte x_inicio = 2;
 byte y_inicio = 0;
 byte x_fim = 2;
@@ -71,6 +72,9 @@ void melhor_caminho(byte x, byte y){
             
             mover();
             Serial.println("Fim 1");
+            tempo = millis();
+            Serial.print("Tempo de execução em ms: ");
+            Serial.println(tempo);
             delay(25000);
           }
           melhor_caminho(x, y);
@@ -87,6 +91,9 @@ void melhor_caminho(byte x, byte y){
               
               mover();
               Serial.println("Fim 2");
+              tempo = millis();
+              Serial.print("Tempo de execução em ms: ");
+              Serial.println(tempo);
               delay(25000);
             }
             melhor_caminho(x, y);
@@ -102,6 +109,9 @@ void melhor_caminho(byte x, byte y){
                 Serial.println("Mover");             
                 mover();
                 Serial.println("Fim 3");
+                tempo = millis();
+                Serial.print("Tempo de execução em ms: ");
+                Serial.println(tempo);
                 delay(25000);
 
               }
@@ -117,6 +127,9 @@ void melhor_caminho(byte x, byte y){
                 Serial.println("Mover");
                 mover();
                 Serial.println("Fim 4");
+                tempo = millis();
+                Serial.print("Tempo de execução em ms: ");
+                Serial.println(tempo);
                 delay(25000);
               }
               melhor_caminho(x, y);    
@@ -133,18 +146,26 @@ void mover(){
   short m;
    for(m=(contador_movimento-1);m>=0;m--){
     if(movimento_robo[m] == 'b'){
-      Serial.println("robô se move pra baixo");
+      Serial.println("robô se move pra celula de baixo");
+      frente();
+      parar();
     }
     else{
       if(movimento_robo[m] == 'c'){
-        Serial.println("robô se move pra cima");
+        Serial.println("robô se move pra celula de cima");
+        tras();
+        parar();        
       }
       else{
         if(movimento_robo[m] == 'd'){
-          Serial.println("robô se move pra direita");
+          Serial.println("robô se move pra celula da direita");
+          direita();
+          parar();
         }
         else{
-          Serial.println("robô se move pra esquerda");
+          Serial.println("robô se move pra celula da esquerda");
+          esquerda();
+          parar();
         }          
       }
     }
@@ -462,9 +483,98 @@ void imprimir_matriz_analisado(){
     Serial.println(" ");
   }  
 }
+
+void frente(){
+  digitalWrite(3, HIGH);
+  digitalWrite(4, LOW);
+  analogWrite(9, 191);
+  digitalWrite(5, HIGH);
+  digitalWrite(6, LOW);
+  analogWrite(10, 191);
+  delay(1850);
+}
+
+void tras(){
+  digitalWrite(3, LOW);
+  digitalWrite(4, HIGH);
+  analogWrite(9, 191);
+  digitalWrite(5, LOW);
+  digitalWrite(6, HIGH);
+  analogWrite(10, 191);
+  delay(1850); 
+}
+
+void direita(){
+  //gira roda esquera
+  digitalWrite(3, HIGH); // amarelo positivo
+  digitalWrite(4, LOW);
+  analogWrite(9, 191);
+  digitalWrite(5, LOW);
+  digitalWrite(6, LOW);
+  analogWrite(10, 191);
+  delay(900);
+  //reto
+  digitalWrite(3, HIGH); //amarelo (+)
+  digitalWrite(4, LOW); //preto (-)
+  analogWrite(9, 191);
+  digitalWrite(5, HIGH);
+  digitalWrite(6, LOW);
+  analogWrite(10, 191);
+  delay(800);
+  //gira direita
+  digitalWrite(3, LOW); //amarelo (+)
+  digitalWrite(4, LOW); //preto (-)
+  analogWrite(9, 191);
+  digitalWrite(5, HIGH);
+  digitalWrite(6, LOW);
+  analogWrite(10, 191);
+  delay(900);
+}
+
+void esquerda(){
+  //gira a roda da esquerda
+  digitalWrite(3, LOW); //amarelo (+)
+  digitalWrite(4, LOW); //preto (-)
+  analogWrite(9, 191);
+  digitalWrite(5, HIGH);
+  digitalWrite(6, LOW);
+  analogWrite(10, 191);
+  delay(900);
+  //reto
+  digitalWrite(3, HIGH); //amarelo (+)
+  digitalWrite(4, LOW); //preto (-)
+  analogWrite(9, 191);
+  digitalWrite(5, HIGH);
+  digitalWrite(6, LOW);
+  analogWrite(10, 191);
+  delay(800);
+  //gira a roda da direita
+  digitalWrite(3, HIGH); // amarelo positivo
+  digitalWrite(4, LOW);
+  analogWrite(9, 191);
+  digitalWrite(5, LOW);
+  digitalWrite(6, LOW);
+  analogWrite(10, 191);
+  delay(900);  
+}
+
+void parar(){
+  digitalWrite(3, LOW);
+  digitalWrite(4, LOW);
+  digitalWrite(5, LOW);
+  digitalWrite(6, LOW);
+  delay(4000);
+}
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
+  pinMode(3, OUTPUT); //saída do arduino para a entrada do l293d
+  pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+  digitalWrite(9, HIGH);
+  digitalWrite(10, HIGH);
 }
 
 void loop() {
