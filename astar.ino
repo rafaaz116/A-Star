@@ -17,8 +17,10 @@ typedef struct cel{
 
 CELULA matriz[num_linhas][num_colunas];
 
-CELULA lista_aberta[num_linhas*num_colunas];
+CELULA *lista_aberta = (CELULA*)malloc((num_linhas*num_colunas)*sizeof(CELULA));
+//CELULA lista_aberta[num_linhas*num_colunas];
 byte it_aberta=0;
+//CELULA *lista_fechada = (CELULA*)malloc((num_linhas*num_colunas)*sizeof(CELULA));
 CELULA lista_fechada[num_linhas*num_colunas];
 byte it_fechada=0;
 byte primeiro=0;
@@ -306,28 +308,37 @@ void insertion_sort(byte primeiro, short ultimo){
   byte i, j;
   CELULA key;
   for (i = (primeiro+1); i <= ultimo; i++) {
+    key = lista_aberta[i];
+    /*
     key.g = lista_aberta[i].g;
     key.h = lista_aberta[i].h;
     key.f = lista_aberta[i].f;
     key.nome = lista_aberta[i].nome;
     key.indice = lista_aberta[i].indice;
     key.pai = lista_aberta[i].pai;
+    */
     j = i - 1;
     while (j >= primeiro && lista_aberta[j].f > key.f) {
+        lista_aberta[j + 1] = lista_aberta[j];
+        /*
         lista_aberta[j + 1].g = lista_aberta[j].g;
         lista_aberta[j + 1].h = lista_aberta[j].h;
         lista_aberta[j + 1].f = lista_aberta[j].f;
         lista_aberta[j + 1].nome = lista_aberta[j].nome;
         lista_aberta[j + 1].indice = lista_aberta[j].indice;
         lista_aberta[j + 1].pai = lista_aberta[j].pai;
+        */
         j = j - 1;
     }
+    lista_aberta[j + 1] = key;
+    /*
     lista_aberta[j + 1].g = key.g;
     lista_aberta[j + 1].h = key.h;
     lista_aberta[j + 1].f = key.f;
     lista_aberta[j + 1].nome = key.nome;
     lista_aberta[j + 1].indice = key.indice;
     lista_aberta[j + 1].pai = key.pai;
+    */
   }
 }
 
@@ -496,7 +507,7 @@ void loop() {
   if (primeira_passada==1){
     iniciar_matriz(); //sair do loop
     //Serial.println("MATRIZ INDICE(NOME DA CELULA)");
-    //imprimir_matriz_indice();
+    imprimir_matriz_indice();
     //Serial.println("MATRIZ CELULA(POSIÇÃO INICIAL, CAMINHO, FINAL)");
     //imprimir_matriz_celula();
     //Serial.println("MATRIZ CUSTO F");    
@@ -517,13 +528,16 @@ void loop() {
 
     x_atual=x_inicio;
     y_atual=y_inicio;
-    //lista_aberta[it_aberta] = matriz[x_atual][y_atual];
+    
+    lista_aberta[it_aberta] = matriz[x_atual][y_atual];
+    /*
     lista_aberta[it_aberta].g = matriz[x_atual][y_atual].g;
     lista_aberta[it_aberta].h = matriz[x_atual][y_atual].h;
     lista_aberta[it_aberta].f = matriz[x_atual][y_atual].f;
     lista_aberta[it_aberta].nome = matriz[x_atual][y_atual].nome;
     lista_aberta[it_aberta].indice = matriz[x_atual][y_atual].indice;
     lista_aberta[it_aberta].pai = matriz[x_atual][y_atual].pai;
+    */
     //Serial.println("IMPRIME LISTA ABERTA, COM VALOR A SER ANALISADO");
     //imprime_lista_aberta(primeiro);
     
@@ -549,13 +563,7 @@ void loop() {
   //Serial.println("IMPRIME LISTA FECHADA");
   //imprime_lista_fechada();
   it_fechada++;
-  lista_aberta[primeiro].g=0;
-  lista_aberta[primeiro].h=0;
-  lista_aberta[primeiro].f=0;
-  lista_aberta[primeiro].nome=0;
-  lista_aberta[primeiro].indice=0;
-  lista_aberta[primeiro].pai=0;
-   
+
   primeiro++; //novo primeiro
   
   //Serial.println("IMPRIME LISTA ABERTA ANTES DO INSERTION SORT");
@@ -564,10 +572,10 @@ void loop() {
   //Serial.println("IMPRIME LISTA ABERTA DEPOIS DO INSERTION SORT");
   //imprime_lista_aberta(primeiro);
   busca_celula_analisar();
-  //Serial.print("X ATUAL: ");
-  //Serial.println(x_atual);
-  //Serial.print("Y ATUAL: ");
-  //Serial.println(y_atual);
-
+  Serial.print("X ATUAL: ");
+  Serial.println(x_atual);
+  Serial.print("Y ATUAL: ");
+  Serial.println(y_atual);
+  Serial.println("");
   delay(1000);
 }
