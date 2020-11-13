@@ -141,26 +141,26 @@ void mover(){
   short m;
    for(m=(contador_movimento-1);m>=0;m--){
     if(movimento_robo[m] == 'b'){
-      Serial.println("robô se move pra celula de baixo");
-      frente();
-      parar();
+      Serial.println("baixo");
+      //frente();
+      //parar();
     }
     else{
       if(movimento_robo[m] == 'c'){
-        Serial.println("robô se move pra celula de cima");
-        tras();
-        parar();        
+        Serial.println("cima");
+        //tras();
+        //parar();        
       }
       else{
         if(movimento_robo[m] == 'd'){
-          Serial.println("robô se move pra celula da direita");
-          direita();
-          parar();
+          Serial.println("direita");
+          //direita();
+          //parar();
         }
         else{
-          Serial.println("robô se move pra celula da esquerda");
-          esquerda();
-          parar();
+          Serial.println("esquerda");
+          //esquerda();
+          //parar();
         }          
       }
     }
@@ -572,10 +572,10 @@ void loop() {
   //Serial.println("IMPRIME LISTA ABERTA DEPOIS DO INSERTION SORT");
   //imprime_lista_aberta(primeiro);
   busca_celula_analisar();
-  Serial.print("X ATUAL: ");
-  Serial.println(x_atual);
-  Serial.print("Y ATUAL: ");
-  Serial.println(y_atual);
-  Serial.println("");
-  delay(1000);
+  //Serial.print("X ATUAL: ");
+  //Serial.println(x_atual);
+  //Serial.print("Y ATUAL: ");
+  //Serial.println(y_atual);
+  //Serial.println("");
+  //delay(1000);
 }
