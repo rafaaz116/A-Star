@@ -1,2 +1,2 @@
 # A-Star
-A-Star optimized to be execute in Arduino Uno R3
+A-Star optimized to be execute in Arduino Uno R3.
